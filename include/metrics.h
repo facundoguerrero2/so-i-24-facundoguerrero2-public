@@ -7,11 +7,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <fcntl.h>
 /**
  * @brief tamaño de buffer para guardar las lineas al leerlas
  */
 #define BUFFER_SIZE 256
+
+/**
+ * @brief Ruta fifo configs
+ */
+#define FIFO_MEMORY_VALUES "/tmp/fifo_memory_values"
+
+/**
+ * @brief ruta  fifo_memory_values ack
+ */
+#define FIFO_MEMORY_VALUES_ACK "/tmp/fifo_memory_values_ack"
+
+/**
+ * @brief Size of memory values array
+ */
+#define MEMORY_REPORTED_VALUES_SIZE 4
 
 /**
  * @brief Obtiene el porcentaje de uso de memoria desde /proc/meminfo.
@@ -109,3 +124,35 @@ unsigned long long get_net_received_packets();
  * @return la cantidad total de paquetes enviados de internet.
  */
 unsigned long long get_net_sent_packets();
+
+/**
+ * @brief Obtiene el porcentaje de fragmentacion
+ *
+ * Lee los datos de la fifo creada por memoryL para obtener el porcentaje de fragmentacion
+ * @return el porcentaje de fragmentacion de memoria.
+ */
+double get_fragmentation();
+
+/**
+ * @brief Obtiene la cantidad de veces que se uso el algoritmo first fit
+ *
+ * Lee los datos de la fifo creada por memoryL para obtener la cantidad de veces que se uso el algoritmo first fit
+ * @return la cantidad de veces que se uso el algoritmo first fit
+ */
+unsigned long long get_first_fit_counter();
+
+/**
+ * @brief Obtiene la cantidad de veces que se uso el algoritmo best fit
+ *
+ * Lee los datos de la fifo creada por memoryL para obtener la cantidad de veces que se uso el algoritmo best fit
+ * @return la cantidad de veces que se uso el algoritmo best fit
+ */
+unsigned long long get_best_fit_counter();    
+
+/**
+ * @brief Obtiene la cantidad de veces que se uso el algoritmo worst fit
+ *
+ * Lee los datos de la fifo creada por memoryL para obtener la cantidad de veces que se uso el algoritmo worst fit
+ * @return la cantidad de veces que se uso el algoritmo worst fit
+ */
+unsigned long long get_worst_fit_counter();

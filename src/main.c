@@ -93,6 +93,8 @@ int main(int argc, char* argv[])
         if (cfg[9] == 1)
         {
             update_processes_gauge();
+            update_fragmentation_gauge();
+            update_political_fit_counters();
         }
         sleep(cfg[10]);
     }

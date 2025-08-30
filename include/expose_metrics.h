@@ -69,6 +69,16 @@ unsigned long long update_net_received_packets();
 unsigned long long update_net_sent_packets();
 
 /**
+ * @brief Actualiza la métrica porcentaje de fragmentacion
+ */
+double update_fragmentation_gauge();
+
+/**
+ * @brief Actualiza los contadores de first fit best fit y worst fit 
+ */
+unsigned long long update_political_fit_counters();
+
+/**
  * @brief Función del hilo para exponer las métricas vía HTTP en el puerto 8000.
  * @param arg Argumento no utilizado.
  * @return NULL

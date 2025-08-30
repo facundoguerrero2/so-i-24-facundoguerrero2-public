@@ -423,3 +423,65 @@ unsigned long long get_net_sent_packets()
     previous_sent_packets = sent_packets;
     return total_sent_packages;
 }
+
+
+double get_fragmentation()
+{   
+    int memory_val_fifo;
+    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
+
+    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
+
+    read(memory_val_fifo, memory_values, sizeof(memory_values));
+
+    close(memory_val_fifo);
+    return (double)memory_values[0];
+}
+
+unsigned long long get_first_fit_counter()
+{
+    int memory_val_fifo, memory_val_fifo_ack;
+    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
+
+    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
+    memory_val_fifo_ack = open(FIFO_MEMORY_VALUES_ACK, O_WRONLY);
+
+    read(memory_val_fifo, memory_values, sizeof(memory_values));
+    write(memory_val_fifo_ack, memory_values, sizeof(memory_values));
+
+    close(memory_val_fifo);
+    close(memory_val_fifo_ack);
+    return (unsigned long long)memory_values[1];
+}
+
+unsigned long long get_best_fit_counter()
+{
+    int memory_val_fifo, memory_val_fifo_ack;
+    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
+
+    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
+    memory_val_fifo_ack = open(FIFO_MEMORY_VALUES_ACK, O_WRONLY);
+
+    read(memory_val_fifo, memory_values, sizeof(memory_values));
+    write(memory_val_fifo_ack, memory_values, sizeof(memory_values));
+
+    close(memory_val_fifo);
+    close(memory_val_fifo_ack);
+    return (unsigned long long)memory_values[2];
+}
+
+unsigned long long get_worst_fit_counter()
+{
+    int memory_val_fifo, memory_val_fifo_ack;
+    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
+
+    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
+    memory_val_fifo_ack = open(FIFO_MEMORY_VALUES_ACK, O_WRONLY);
+
+    read(memory_val_fifo, memory_values, sizeof(memory_values));
+    write(memory_val_fifo_ack, memory_values, sizeof(memory_values));
+
+    close(memory_val_fifo);
+    close(memory_val_fifo_ack);
+    return (unsigned long long)memory_values[3];
+}

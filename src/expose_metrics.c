@@ -33,6 +33,18 @@ static prom_counter_t* net_sent_packets_metric;
 /** Métrica de Prometheus para la cantidad de procesos en ejecucion */
 static prom_gauge_t* processes_metric;
 
+/** Métrica de Prometheus para el porcentaje de fragmentacion de memoria */
+static prom_gauge_t* fragmentation_metric;
+
+/** Métrica de Prometheus para la cantidad de veces que se uso el algoritmo first fit */
+static prom_counter_t* first_fit_metric;
+
+/** Métrica de Prometheus para la cantidad de veces que se uso el algoritmo best fit */
+static prom_counter_t* best_fit_metric;
+
+/** Métrica de Prometheus para la cantidad de veces que se uso el algoritmo worst fit */
+static prom_counter_t* worst_fit_metric;
+
 double update_cpu_gauge()
 {
     double usage = get_cpu_usage();
@@ -196,6 +208,42 @@ unsigned long long update_net_sent_packets()
     return net_sent_packets;
 }
 
+double update_fragmentation_gauge()
+{
+    double fragmentation = get_fragmentation();
+    if (fragmentation >= 0)
+    {
+        pthread_mutex_lock(&lock);
+        prom_gauge_set(fragmentation_metric, fragmentation, NULL);
+        pthread_mutex_unlock(&lock);
+    }
+    else
+    {
+        fprintf(stderr, "Error al obtener el porcentaje de fragmentacion de memoria\n");
+    }
+    return fragmentation;
+}
+
+unsigned long long update_political_fit_counters()
+{
+    unsigned long long first_fit = get_first_fit_counter();
+    unsigned long long best_fit = get_best_fit_counter();
+    unsigned long long worst_fit = get_worst_fit_counter();
+    unsigned long long fit_counters = first_fit + best_fit + worst_fit;
+    if (first_fit <= 0 || best_fit <= 0 || worst_fit <= 0)
+    {
+        pthread_mutex_lock(&lock);
+        prom_counter_add(first_fit_metric, first_fit, NULL);
+        prom_counter_add(best_fit_metric, best_fit, NULL);
+        prom_counter_add(worst_fit_metric, worst_fit, NULL);
+        pthread_mutex_unlock(&lock);
+    }
+    else
+    {
+        fprintf(stderr, "Error al obtener los contadores de politicas de fit\n");
+    }
+    return fit_counters;
+}
 void* expose_metrics(void* arg)
 {
     (void)arg; // Argumento no utilizado
@@ -313,6 +361,35 @@ int init_metrics()
         return EXIT_FAILURE;
     }
 
+    fragmentation_metric = prom_gauge_new("memory_fragmentation_percentage", "Porcentaje de fragmentacion de memoria", 0, NULL);
+    if (fragmentation_metric == NULL)
+    {
+        fprintf(stderr, "Error al crear la métrica de fragmentacion de memoria\n");
+        return EXIT_FAILURE;
+    }
+
+    first_fit_metric = prom_counter_new("first_fit_count", "Cantidad de veces que se uso el algoritmo first fit", 0, NULL);
+    if (first_fit_metric == NULL)
+    {
+        fprintf(stderr, "Error al crear la métrica de first fit\n");
+        return EXIT_FAILURE;
+    }
+
+    best_fit_metric = prom_counter_new("best_fit_count", "Cantidad de veces que se uso el algoritmo best fit", 0, NULL);
+    if (best_fit_metric == NULL)
+    {
+        fprintf(stderr, "Error al crear la métrica de best fit\n");
+        return EXIT_FAILURE;
+    }
+
+    worst_fit_metric = prom_counter_new("worst_fit_count", "Cantidad de veces que se uso el algoritmo worst fit", 0, NULL);
+    if (worst_fit_metric == NULL)
+    {
+        fprintf(stderr, "Error al crear la métrica de worst fit\n");
+        return EXIT_FAILURE;
+    }
+
+
     // Registramos las métricas en el registro por defecto
     if (prom_collector_registry_must_register_metric(cpu_usage_metric) == NULL ||
         prom_collector_registry_must_register_metric(memory_usage_metric) == NULL ||
@@ -323,7 +400,11 @@ int init_metrics()
         prom_collector_registry_must_register_metric(net_sent_kbps_metric) == NULL ||
         prom_collector_registry_must_register_metric(net_received_packets_metric) == NULL ||
         prom_collector_registry_must_register_metric(net_sent_packets_metric) == NULL ||
-        prom_collector_registry_must_register_metric(processes_metric) == NULL)
+        prom_collector_registry_must_register_metric(processes_metric) == NULL ||
+        prom_collector_registry_must_register_metric(fragmentation_metric) == NULL ||
+        prom_collector_registry_must_register_metric(first_fit_metric) == NULL ||
+        prom_collector_registry_must_register_metric(best_fit_metric) == NULL ||
+        prom_collector_registry_must_register_metric(worst_fit_metric) == NULL)
     {
         fprintf(stderr, "Error al registrar las métricas\n");
         return EXIT_FAILURE;
