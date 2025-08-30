@@ -224,27 +224,39 @@ double update_fragmentation_gauge()
     return fragmentation;
 }
 
-double update_political_fit_counters()
+unsigned long long update_political_fit_counters()
 {
+    static double prev_first_fit = 0;
+    static double prev_best_fit = 0;
+    static double prev_worst_fit = 0;
+    
     double first_fit = get_first_fit_counter();
     double best_fit = get_best_fit_counter();
     double worst_fit = get_worst_fit_counter();
-
-    //double fit_counters = first_fit + best_fit + worst_fit;
-    if (1==1)
-    {
-        pthread_mutex_lock(&lock);
-        prom_counter_add(first_fit_metric, first_fit, NULL);
-        prom_counter_add(best_fit_metric, best_fit, NULL);
-        prom_counter_add(worst_fit_metric, worst_fit, NULL);
-        pthread_mutex_unlock(&lock);
+    
+    pthread_mutex_lock(&lock);
+    
+    // Solo sumar el incremento desde la última lectura
+    if (first_fit > prev_first_fit) {
+        prom_counter_add(first_fit_metric, first_fit - prev_first_fit, NULL);
+        prev_first_fit = first_fit;
     }
-    else
-    {
-        fprintf(stderr, "Error al obtener los contadores de politicas de fit\n");
+    
+    if (best_fit > prev_best_fit) {
+        prom_counter_add(best_fit_metric, best_fit - prev_best_fit, NULL);
+        prev_best_fit = best_fit;
     }
-    return first_fit;
+    
+    if (worst_fit > prev_worst_fit) {
+        prom_counter_add(worst_fit_metric, worst_fit - prev_worst_fit, NULL);
+        prev_worst_fit = worst_fit;
+    }
+    
+    pthread_mutex_unlock(&lock);
+    
+    return (unsigned long long)(first_fit + best_fit + worst_fit);
 }
+
 void* expose_metrics(void* arg)
 {
     (void)arg; // Argumento no utilizado
