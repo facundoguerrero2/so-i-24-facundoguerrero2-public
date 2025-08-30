@@ -224,13 +224,14 @@ double update_fragmentation_gauge()
     return fragmentation;
 }
 
-unsigned long long update_political_fit_counters()
+double update_political_fit_counters()
 {
-    unsigned long long first_fit = get_first_fit_counter();
-    unsigned long long best_fit = get_best_fit_counter();
-    unsigned long long worst_fit = get_worst_fit_counter();
-    unsigned long long fit_counters = first_fit + best_fit + worst_fit;
-    if (first_fit <= 0 || best_fit <= 0 || worst_fit <= 0)
+    double first_fit = get_first_fit_counter();
+    double best_fit = get_best_fit_counter();
+    double worst_fit = get_worst_fit_counter();
+
+    //double fit_counters = first_fit + best_fit + worst_fit;
+    if (1==1)
     {
         pthread_mutex_lock(&lock);
         prom_counter_add(first_fit_metric, first_fit, NULL);
@@ -242,7 +243,7 @@ unsigned long long update_political_fit_counters()
     {
         fprintf(stderr, "Error al obtener los contadores de politicas de fit\n");
     }
-    return fit_counters;
+    return first_fit;
 }
 void* expose_metrics(void* arg)
 {

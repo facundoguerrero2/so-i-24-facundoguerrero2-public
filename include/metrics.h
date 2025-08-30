@@ -28,6 +28,9 @@
  */
 #define MEMORY_REPORTED_VALUES_SIZE 4
 
+extern double mem_values[MEMORY_REPORTED_VALUES_SIZE];
+extern int mem_values_loaded;
+
 /**
  * @brief Obtiene el porcentaje de uso de memoria desde /proc/meminfo.
  *
@@ -125,6 +128,13 @@ unsigned long long get_net_received_packets();
  */
 unsigned long long get_net_sent_packets();
 
+
+/**
+ * @brief Carga los valores de memoria desde la fifo
+ *
+ * Lee los datos de la fifo creada por memoryL para obtener los valores de memoria
+ */
+void load_memory_values();
 /**
  * @brief Obtiene el porcentaje de fragmentacion
  *
@@ -139,7 +149,7 @@ double get_fragmentation();
  * Lee los datos de la fifo creada por memoryL para obtener la cantidad de veces que se uso el algoritmo first fit
  * @return la cantidad de veces que se uso el algoritmo first fit
  */
-unsigned long long get_first_fit_counter();
+double get_first_fit_counter();
 
 /**
  * @brief Obtiene la cantidad de veces que se uso el algoritmo best fit
@@ -147,7 +157,7 @@ unsigned long long get_first_fit_counter();
  * Lee los datos de la fifo creada por memoryL para obtener la cantidad de veces que se uso el algoritmo best fit
  * @return la cantidad de veces que se uso el algoritmo best fit
  */
-unsigned long long get_best_fit_counter();    
+double get_best_fit_counter();    
 
 /**
  * @brief Obtiene la cantidad de veces que se uso el algoritmo worst fit
@@ -155,4 +165,4 @@ unsigned long long get_best_fit_counter();
  * Lee los datos de la fifo creada por memoryL para obtener la cantidad de veces que se uso el algoritmo worst fit
  * @return la cantidad de veces que se uso el algoritmo worst fit
  */
-unsigned long long get_worst_fit_counter();
+double get_worst_fit_counter();

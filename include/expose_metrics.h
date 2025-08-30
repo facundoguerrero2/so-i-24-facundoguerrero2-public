@@ -76,7 +76,7 @@ double update_fragmentation_gauge();
 /**
  * @brief Actualiza los contadores de first fit best fit y worst fit 
  */
-unsigned long long update_political_fit_counters();
+double update_political_fit_counters();
 
 /**
  * @brief Función del hilo para exponer las métricas vía HTTP en el puerto 8000.

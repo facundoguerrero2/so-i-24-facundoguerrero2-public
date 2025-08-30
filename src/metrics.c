@@ -2,6 +2,9 @@
 
 #define ONE_SEC 1000 // one second in ms
 
+double mem_values[MEMORY_REPORTED_VALUES_SIZE] = {0, 0, 0, 0};
+int mem_values_loaded = 0;
+
 double get_memory_usage()
 {
     FILE* fp;
@@ -424,64 +427,40 @@ unsigned long long get_net_sent_packets()
     return total_sent_packages;
 }
 
+// Función que lee la FIFO una sola vez
+void load_memory_values() {
+    if (mem_values_loaded) return; // Ya cargados
+    
+    int memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
+    if (memory_val_fifo == -1) return;
+    
+    read(memory_val_fifo, mem_values, sizeof(mem_values));
+    close(memory_val_fifo);
+    
+    mem_values_loaded = 1;
+}
+
 
 double get_fragmentation()
 {   
-    int memory_val_fifo;
-    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
-
-    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
-
-    read(memory_val_fifo, memory_values, sizeof(memory_values));
-
-    close(memory_val_fifo);
-    return (double)memory_values[0];
+    load_memory_values();
+    return mem_values[0];
 }
 
-unsigned long long get_first_fit_counter()
+double get_first_fit_counter()
 {
-    int memory_val_fifo, memory_val_fifo_ack;
-    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
-
-    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
-    memory_val_fifo_ack = open(FIFO_MEMORY_VALUES_ACK, O_WRONLY);
-
-    read(memory_val_fifo, memory_values, sizeof(memory_values));
-    write(memory_val_fifo_ack, memory_values, sizeof(memory_values));
-
-    close(memory_val_fifo);
-    close(memory_val_fifo_ack);
-    return (unsigned long long)memory_values[1];
+    load_memory_values();
+    return mem_values[1];
 }
 
-unsigned long long get_best_fit_counter()
-{
-    int memory_val_fifo, memory_val_fifo_ack;
-    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
-
-    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
-    memory_val_fifo_ack = open(FIFO_MEMORY_VALUES_ACK, O_WRONLY);
-
-    read(memory_val_fifo, memory_values, sizeof(memory_values));
-    write(memory_val_fifo_ack, memory_values, sizeof(memory_values));
-
-    close(memory_val_fifo);
-    close(memory_val_fifo_ack);
-    return (unsigned long long)memory_values[2];
+double get_best_fit_counter()
+{   
+    load_memory_values();
+    return mem_values[2];
 }
 
-unsigned long long get_worst_fit_counter()
+double get_worst_fit_counter()
 {
-    int memory_val_fifo, memory_val_fifo_ack;
-    int memory_values[MEMORY_REPORTED_VALUES_SIZE] = {0,0,0,0};
-
-    memory_val_fifo = open(FIFO_MEMORY_VALUES, O_RDONLY);
-    memory_val_fifo_ack = open(FIFO_MEMORY_VALUES_ACK, O_WRONLY);
-
-    read(memory_val_fifo, memory_values, sizeof(memory_values));
-    write(memory_val_fifo_ack, memory_values, sizeof(memory_values));
-
-    close(memory_val_fifo);
-    close(memory_val_fifo_ack);
-    return (unsigned long long)memory_values[3];
+    load_memory_values();
+    return mem_values[3];
 }
