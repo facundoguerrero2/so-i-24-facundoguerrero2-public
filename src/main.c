@@ -17,7 +17,7 @@
 /**
  * @brief Size of cfg array
  */
-#define CONFIG_SIZE 11
+#define CONFIG_SIZE 13
 
 /**
  * @brief Main function to initialize and update metrics.
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     int fd_config, fd_config_ack;
     init_metrics();
     // Creamos un hilo para exponer las métricas vía HTTP
-    int cfg[CONFIG_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    int cfg[CONFIG_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
     fd_config = open(FIFO_CONFIG, O_RDONLY);
 
@@ -61,8 +61,6 @@ int main(int argc, char* argv[])
         if (cfg[1] == 1)
         {
             update_memory_gauge();
-            update_fragmentation_gauge();
-            update_political_fit_counters();
         }
         if (cfg[2] == 1)
         {
@@ -94,10 +92,16 @@ int main(int argc, char* argv[])
         }
         if (cfg[9] == 1)
         {
-            update_processes_gauge();
-            
+            update_processes_gauge();   
         }
-        sleep(cfg[10]);
+        if (cfg[10]==1){
+            update_fragmentation_gauge();
+        }
+        if (cfg[11] == 1)
+        {
+            update_political_fit_counters();
+        }
+        sleep(cfg[12]);
     }
 
     return EXIT_SUCCESS;
